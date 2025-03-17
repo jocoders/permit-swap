@@ -7,48 +7,85 @@ import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20P
 import {TokenAlpha} from "./TokenAlpha.sol";
 import {TokenBeta} from "./TokenBeta.sol";
 
+/// @title PermitSwap Contract
+/// @notice This contract facilitates token swaps between two orders using EIP-712 signatures for permit functionality.
+/// @dev Inherits from EIP712 for domain separation and uses ECDSA for signature recovery.
 contract PermitSwap is EIP712 {
     using ECDSA for bytes32;
 
+    /// @notice Address of the TokenAlpha contract.
     address public immutable tokenAlpha;
+    /// @notice Address of the TokenBeta contract.
     address public immutable tokenBeta;
 
+    /// @notice Represents an order for a token swap.
     struct Order {
         address owner;
+        ///< Owner of the order.
         address tokenSell;
+        ///< Token to be sold.
         address tokenBuy;
+        ///< Token to be bought.
         uint256 orderId;
+        ///< Unique identifier for the order.
         uint256 amountSell;
+        ///< Amount of tokenSell to be sold.
         uint256 amountBuy;
+        ///< Amount of tokenBuy to be bought.
         uint256 deadline;
     }
+    ///< Expiration time of the order.
 
+    /// @notice Represents a signature for a transaction.
     struct Signature {
         uint8 v;
+        ///< Recovery id.
         bytes32 r;
+        ///< Output of ECDSA signature.
         bytes32 s;
     }
+    ///< Output of ECDSA signature.
 
+    /// @notice Error thrown when order amounts are invalid.
     error InvalidAmounts();
+    /// @notice Error thrown when the order owner is invalid.
     error InvalidOwner(uint256 orderId);
+    /// @notice Error thrown when the order has expired.
     error OrderExpired(uint256 orderId);
+    /// @notice Error thrown when a token transfer fails.
     error InvalidTransfer(uint256 orderId);
+    /// @notice Error thrown when a signature is invalid.
     error InvalidSignature(uint256 orderId);
+    /// @notice Error thrown when a token is invalid.
     error InvalidToken(uint256 orderId);
+    /// @notice Error thrown when the tokens in an order are identical.
     error IdenticalTokens(uint256 orderId);
+    /// @notice Error thrown when the balance is insufficient.
     error InvalidBalance(uint256 orderId, address token);
 
+    /// @notice Emitted when a swap is successfully executed.
+    /// @param orderId1 The ID of the first order.
+    /// @param orderId2 The ID of the second order.
     event Swap(uint256 orderId1, uint256 orderId2);
 
+    /// @dev Typehash for the Order struct used in EIP-712 encoding.
     bytes32 private constant ORDER_TYPEHASH = keccak256(
         "Order(address owner,address tokenSell,address tokenBuy,uint256 orderId,uint256 amountSell,uint256 amountBuy,uint256 deadline,uint256 nonce)"
     );
 
+    /// @notice Initializes the PermitSwap contract with the given token addresses.
+    /// @param _tokenAlpha Address of the TokenAlpha contract.
+    /// @param _tokenBeta Address of the TokenBeta contract.
     constructor(address _tokenAlpha, address _tokenBeta) EIP712("PermitSwap", "1") {
         tokenAlpha = _tokenAlpha;
         tokenBeta = _tokenBeta;
     }
 
+    /// @notice Executes a swap between two orders.
+    /// @param order1 The first order.
+    /// @param order2 The second order.
+    /// @param txSig1 The signature for the first order.
+    /// @param txSig2 The signature for the second order.
     function swap(Order calldata order1, Order calldata order2, Signature calldata txSig1, Signature calldata txSig2)
         public
     {
@@ -72,12 +109,17 @@ contract PermitSwap is EIP712 {
         emit Swap(order1.orderId, order2.orderId);
     }
 
+    /// @dev Validates two orders for a swap.
+    /// @param order1 The first order.
+    /// @param order2 The second order.
     function _validateOrders(Order calldata order1, Order calldata order2) private {
         require(order1.amountSell == order2.amountBuy && order1.amountBuy == order2.amountSell, InvalidAmounts());
         _validateOrder(order1);
         _validateOrder(order2);
     }
 
+    /// @dev Validates a single order.
+    /// @param order The order to validate.
     function _validateOrder(Order calldata order) private {
         require(order.owner != address(0), InvalidOwner(order.orderId));
         require(order.deadline > block.timestamp, OrderExpired(order.orderId));
@@ -93,10 +135,18 @@ contract PermitSwap is EIP712 {
         );
     }
 
+    /// @dev Checks if a token is valid for swapping.
+    /// @param token The token address to check.
+    /// @return True if the token is valid, false otherwise.
     function _isValidToken(address token) private view returns (bool) {
         return token == tokenAlpha || token == tokenBeta;
     }
 
+    /// @dev Checks if an owner has a sufficient balance of a token.
+    /// @param token The token address.
+    /// @param owner The owner address.
+    /// @param amount The amount to check.
+    /// @return True if the balance is sufficient, false otherwise.
     function _isValidBalance(address token, address owner, uint256 amount) private view returns (bool) {
         return ERC20Permit(token).balanceOf(owner) >= amount;
     }
