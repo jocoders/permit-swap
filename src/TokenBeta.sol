@@ -22,3 +22,7 @@ contract TokenBeta is ERC20Permit, Ownable2Step {
         _mint(to, amount);
     }
 }
+
+// Deployer: 0xE7234457734b5Fa98ac230Aa2e5bC9A2d17A1C27
+// Deployed to: 0x0eaA2CF4caC42e449757084C8a5B996ADc6e0897
+// Transaction hash: 0x87dab0cac6e32dc2cc9cff37379ec2ef77936c65013b29ef60d9dd729648bc57

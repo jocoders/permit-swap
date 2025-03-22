@@ -7,19 +7,16 @@ import {TokenAlpha} from "../src/TokenAlpha.sol";
 import {TokenBeta} from "../src/TokenBeta.sol";
 
 contract PermitSwapScript is Script {
-    PermitSwap public permitSwap;
-    TokenAlpha public tokenAlpha;
-    TokenBeta public tokenBeta;
-
-    function setUp() public {
-        tokenAlpha = new TokenAlpha();
-        tokenBeta = new TokenBeta();
-    }
-
     function run() public {
         vm.startBroadcast();
 
-        permitSwap = new PermitSwap(address(tokenAlpha), address(tokenBeta));
+        TokenAlpha tokenAlpha = new TokenAlpha();
+        TokenBeta tokenBeta = new TokenBeta();
+        PermitSwap permitSwap = new PermitSwap(address(tokenAlpha), address(tokenBeta));
+
+        console.log("TokenAlpha deployed at:", address(tokenAlpha));
+        console.log("TokenBeta deployed at:", address(tokenBeta));
+        console.log("PermitSwap deployed at:", address(permitSwap));
 
         vm.stopBroadcast();
     }

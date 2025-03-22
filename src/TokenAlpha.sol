@@ -22,3 +22,7 @@ contract TokenAlpha is ERC20Permit, Ownable2Step {
         _mint(to, amount);
     }
 }
+
+// Deployer: 0xE7234457734b5Fa98ac230Aa2e5bC9A2d17A1C27
+// Deployed to: 0x2CbD45215911Bd022b5F3c13dFe55E2ddb4C7406
+// Transaction hash: 0x33dfabfafb1ed3a84c42a8db60eeba579406b2c06c2ac09ad1a03ee5112776da
