@@ -21,57 +21,34 @@ contract PermitSwap is EIP712 {
     /// @notice Represents an order for a token swap.
     struct Order {
         address owner;
-        ///< Owner of the order.
         address tokenSell;
-        ///< Token to be sold.
         address tokenBuy;
-        ///< Token to be bought.
         uint256 orderId;
-        ///< Unique identifier for the order.
         uint256 amountSell;
-        ///< Amount of tokenSell to be sold.
         uint256 amountBuy;
-        ///< Amount of tokenBuy to be bought.
         uint256 deadline;
     }
-    ///< Expiration time of the order.
 
     /// @notice Represents a signature for a transaction.
     struct Signature {
         uint8 v;
-        ///< Recovery id.
         bytes32 r;
-        ///< Output of ECDSA signature.
         bytes32 s;
     }
-    ///< Output of ECDSA signature.
 
-    /// @notice Error thrown when order amounts are invalid.
     error InvalidAmounts(); // 0xd856fc5a
-    /// @notice Error thrown when the order owner is invalid.
     error InvalidOwner(uint256 orderId); // 0x427be9f6
-    /// @notice Error thrown when the order has expired.
     error OrderExpired(uint256 orderId); // 0x1ad308dc
-    /// @notice Error thrown when a token transfer fails.
     error InvalidTransfer(uint256 orderId); // 0xef61ddaf
-    /// @notice Error thrown when a signature is invalid.
     error InvalidSignature(uint256 orderId); // 0x52bf9848
-    /// @notice Error thrown when a token is invalid.
     error InvalidToken(uint256 orderId); // 0x925d6b18
-    /// @notice Error thrown when the tokens in an order are identical.
     error IdenticalTokens(uint256 orderId); // 0x4811edad
-    /// @notice Error thrown when the balance is insufficient.
     error InvalidBalance(uint256 orderId, address token); // 0x6a791864
 
     /// @notice Emitted when a swap is successfully executed.
     /// @param orderId1 The ID of the first order.
     /// @param orderId2 The ID of the second order.
     event Swap(uint256 orderId1, uint256 orderId2);
-
-    /// @dev Typehash for the Order struct used in EIP-712 encoding.
-    bytes32 private constant ORDER_TYPEHASH = keccak256(
-        "Order(address owner,address tokenSell,address tokenBuy,uint256 orderId,uint256 amountSell,uint256 amountBuy,uint256 deadline,uint256 nonce)"
-    );
 
     /// @notice Initializes the PermitSwap contract with the given token addresses.
     /// @param _tokenAlpha Address of the TokenAlpha contract.
@@ -148,7 +125,3 @@ contract PermitSwap is EIP712 {
         return ERC20Permit(token).balanceOf(owner) >= amount;
     }
 }
-
-// Deployer: 0xE7234457734b5Fa98ac230Aa2e5bC9A2d17A1C27
-// Deployed to: 0x6AF543cBb97eB4b095192C8EbDa1c1CAE3E3ba6f
-// Transaction hash: 0x322511cf338235889d664bc006f7ea91a2b2916f8148d7fd93dc886ab2d27813
