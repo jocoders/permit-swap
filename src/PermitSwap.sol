@@ -38,7 +38,6 @@ contract PermitSwap is EIP712 {
 
     error InvalidAmounts(); // 0xd856fc5a
     error InvalidOwner(uint256 orderId); // 0x427be9f6
-    error OrderExpired(uint256 orderId); // 0x1ad308dc
     error InvalidTransfer(uint256 orderId); // 0xef61ddaf
     error InvalidSignature(uint256 orderId); // 0x52bf9848
     error InvalidToken(uint256 orderId); // 0x925d6b18
@@ -99,7 +98,6 @@ contract PermitSwap is EIP712 {
     /// @param order The order to validate.
     function _validateOrder(Order calldata order) private {
         require(order.owner != address(0), InvalidOwner(order.orderId));
-        require(order.deadline > block.timestamp, OrderExpired(order.orderId));
         require(order.tokenSell != order.tokenBuy, IdenticalTokens(order.orderId));
         require(_isValidToken(order.tokenSell), InvalidToken(order.orderId));
         require(_isValidToken(order.tokenBuy), InvalidToken(order.orderId));
